@@ -1,34 +1,69 @@
-import { createReq } from './mock'
+const { createReq } = require('./mock')
 
 function createQueue(tasks, maxNumOfWorkers = 3) {
-  let taskIndex = 0
-  let numOfWorker = 0
-  let results = Array(tasks.length).fill(null)
+  return new Promise(done => {
+    let taskIndex = 0
+    let numOfWorker = 0
+    let results = Array(tasks.length).fill(null)
 
-  // TODO: create a closure instead of the following implementation
-  for (let i = 0; i < maxNumOfWorkers; i++) {
-    tasks[taskIndex]()
-      .then(result => {
-        results[taskIndex] = result
-      })
-      .catch(error => {
-        results[taskIndex] = error
-      })
-    taskIndex++
-    numOfWorker++
-  }
+    function nextTask() {
+      if (taskIndex < tasks.length) {
+        tasks[taskIndex]()
+          .then(
+            (indx => result => {
+              results[indx] = result
+              numOfWorker--
+              nextTask()
+            })(taskIndex)
+          )
+          .catch(
+            (indx => error => {
+              results[indx] = error
+              numOfWorker--
+              nextTask()
+            })(taskIndex)
+          )
+        numOfWorker++
+        console.log(`current task index ${taskIndex}, current worker ${numOfWorker}`)
+        taskIndex++
+      } else if (numOfWorker === 0) {
+        done(results)
+      }
+    }
+    // TODO: create a closure instead of the following implementation
+    for (let i = 0; i < maxNumOfWorkers; i++) {
+      tasks[taskIndex]()
+        .then(
+          (indx => result => {
+            results[indx] = result
+            numOfWorker--
+            nextTask()
+          })(taskIndex)
+        )
+        .catch(
+          (indx => error => {
+            results[indx] = error
+            numOfWorker--
+            nextTask()
+          })(taskIndex)
+        )
+      numOfWorker++
+      console.log(`current task index ${taskIndex}, current worker ${numOfWorker}`)
+      taskIndex++
+    }
+  })
 }
 
 // Usage
 createQueue([
-  createReq(2000),
+  createReq(700),
   createReq(500),
   createReq(1000),
-  createReq(3000),
+  createReq(1400),
   createReq(50),
   createReq(1300),
-  createReq(800),
-  createReq(2700)
+  createReq(6600),
+  createReq(700)
 ]).then(results => {
   console.log(results)
 })
