@@ -3,7 +3,20 @@ import { createReq } from './mock'
 function createQueue(tasks, maxNumOfWorkers = 3) {
   let taskIndex = 0
   let numOfWorker = 0
-  // TODO: create closure
+  let results = Array(tasks.length).fill(null)
+
+  // TODO: create a closure instead of the following implementation
+  for (let i = 0; i < maxNumOfWorkers; i++) {
+    tasks[taskIndex]()
+      .then(result => {
+        results[taskIndex] = result
+      })
+      .catch(error => {
+        results[taskIndex] = error
+      })
+    taskIndex++
+    numOfWorker++
+  }
 }
 
 // Usage
