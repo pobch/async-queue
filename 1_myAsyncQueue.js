@@ -30,7 +30,7 @@ function createQueue(tasks, maxNumOfWorkers = 3) {
         done(results)
       }
     }
-    // TODO: create a closure instead of the following implementation
+
     for (let i = 0; i < maxNumOfWorkers; i++) {
       tasks[taskIndex]()
         .then(
