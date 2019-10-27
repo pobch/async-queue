@@ -10,6 +10,7 @@ function createQueue(tasks, maxNumOfWorkers = 3) {
       if (taskIndex < tasks.length) {
         tasks[taskIndex]()
           .then(
+            // put the current taskIndex into the scope of .then's callback function
             (indx => result => {
               results[indx] = result
               numOfWorker--
@@ -17,6 +18,7 @@ function createQueue(tasks, maxNumOfWorkers = 3) {
             })(taskIndex)
           )
           .catch(
+            // put the current taskIndex into the scope of .then's callback function
             (indx => error => {
               results[indx] = error
               numOfWorker--
@@ -34,6 +36,7 @@ function createQueue(tasks, maxNumOfWorkers = 3) {
     for (let i = 0; i < maxNumOfWorkers; i++) {
       tasks[taskIndex]()
         .then(
+          // put the current taskIndex into the scope of .then's callback function
           (indx => result => {
             results[indx] = result
             numOfWorker--
@@ -41,6 +44,7 @@ function createQueue(tasks, maxNumOfWorkers = 3) {
           })(taskIndex)
         )
         .catch(
+          // put the current taskIndex into the scope of .then's callback function
           (indx => error => {
             results[indx] = error
             numOfWorker--
